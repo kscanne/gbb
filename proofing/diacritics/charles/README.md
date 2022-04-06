@@ -3,13 +3,13 @@
 
 **Publisher**: Charles University, Faculty of Mathematics and Physics, Institute of Formal and Applied Linguistics (UFAL)
 
-**Description**: “Corpus of texts in 12 languages. For each language, we provide one training, one development and one testing set acquired from Wikipedia articles. Moreover, each language dataset contains (substantially larger) training set collected from (general) Web texts. All sets, except for Wikipedia and Web training sets that can contain similar sentences, are disjoint. Data are segmented into sentences which are further word tokenized. All data in the corpus contain diacritics. To strip diacritics from them, use Python script diacritization_stripping.py contained within attached stripping_diacritics.zip. This script has two modes. We generally recommend using method called uninames, which for some languages behaves better. The code for training recurrent neural-network based model for diacritics restoration is located at https://github.com/arahusky/diacritics_restoration.”
+**Description**: “Corpus of texts in 12 languages. For each language, we provide one training, one development and one testing set acquired from Wikipedia articles. Moreover, each language dataset contains (substantially larger) training set collected from (general) Web texts. All sets, except for Wikipedia and Web training sets that can contain similar sentences, are disjoint. Data are segmented into sentences which are further word tokenized. All data in the corpus contain diacritics. To strip diacritics from them, use Python script diacritization_stripping.py contained within attached stripping_diacritics.zip. This script has two modes. We generally recommend using method called uninames, which for some languages behaves better. The code for training recurrent neural-network based model for diacritics restoration is located at <https://github.com/arahusky/diacritics_restoration>.”
 
 **Version**: 2018-01-31
 
-**Home page**: http://hdl.handle.net/11234/1-2607
+**Home page**: <http://hdl.handle.net/11234/1-2607>
 
-**Direct download**: https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2607/ga.zip?sequence=1&isAllowed=y
+**Direct download**: <https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2607/ga.zip?sequence=1&isAllowed=y>
 
 **Preview**:
 
