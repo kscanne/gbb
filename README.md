@@ -41,3 +41,4 @@ Datasets wanted, or in progress:
 * Semantic parsing
 * Semantic role labeling
 * ASR
+* Handwriting recognition
