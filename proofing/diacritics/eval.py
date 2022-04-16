@@ -46,8 +46,6 @@ def retrieveDataset(name):
         zipRef.extractall()
     for x in files:
       ans[x] = readCorpusFromXZFile('ga/target_'+x+'.txt.xz')
-      print('read',len(ans[x]),'lines from',x,'file.')
-    pass
   else:
     sys.exit("Unknown dataset\n")
   return ans
