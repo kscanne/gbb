@@ -1,5 +1,6 @@
 import os.path
 import urllib.request
+import ssl
 import zipfile
 import lzma
 import diacritization_stripping_data
@@ -20,6 +21,12 @@ def readCorpusFromFile(fileName):
 def readCorpusFromXZFile(fileName):
   return lzma.open(fileName).read().decode('utf-8').splitlines()
 
+# because SLU systems are awful
+def urlRetrieveNoSSL(url, fileName):
+  with urllib.request.urlopen(url, context=ssl.SSLContext()) as u, \
+                        open(fileName, 'wb') as f:
+    f.write(u.read())
+
 def retrieveDataset(name):
   ans = dict()
   files = ('dev','test','train')
@@ -28,7 +35,7 @@ def retrieveDataset(name):
       zipfileName = 'tuairisc-2015.zip'
       if not os.path.exists(zipfileName):
         zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
-        urllib.request.urlretrieve(zipURL, zipfileName)
+        urlRetrieveNoSSL(zipURL, zipfileName)
       with zipfile.ZipFile(zipfileName, 'r') as zipRef:
         zipRef.extractall()
     for x in files:
