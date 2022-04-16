@@ -3,6 +3,7 @@ import urllib.request
 import ssl
 import zipfile
 import lzma
+import pickle
 import diacritization_stripping_data
 from nltk.tokenize import word_tokenize, NLTKWordTokenizer
 
@@ -40,6 +41,7 @@ def retrieveDataset(name):
         zipRef.extractall()
     for x in files:
       ans[x] = readCorpusFromFile(x+'-clean.txt')
+    ans['shortName'] = 'tuairisc'
   elif name == 'Charles University':
     if not all(os.path.exists('ga/target_'+x+'.txt.xz') for x in files):
       zipfileName = 'ga.zip'
@@ -50,6 +52,7 @@ def retrieveDataset(name):
         zipRef.extractall()
     for x in files:
       ans[x] = readCorpusFromXZFile('ga/target_'+x+'.txt.xz')
+    ans['shortName'] = 'charles'
   else:
     sys.exit("Unknown dataset\n")
   return ans
@@ -81,12 +84,10 @@ def score(predictedCorpus, goldCorpus):
   recall = correctDiacritics/totalDiacritics
   return (wer, precision, recall)
 
-# dataset is a dict with keys 'train', 'dev', 'test'
 def restoreIdentity(dataset):
   return dataset['test']
 
-# dataset is a dict with keys 'train', 'dev', 'test'
-def restoreUnigrams(dataset):
+def restoreUnigramsTraining(dataset):
   unigrams = dict()
   for trainSent in dataset['train']:
     for t in word_tokenize(trainSent):
@@ -94,13 +95,24 @@ def restoreUnigrams(dataset):
       if not asciiToken in unigrams:
         unigrams[asciiToken] = dict()
       unigrams[asciiToken][t] = unigrams[asciiToken].get(t,0) + 1
-  bestRestoration = dict()
+  ans = dict()
   for k in unigrams:
     bestCount = 0
     for cand in unigrams[k]:
       if unigrams[k][cand] > bestCount:
-        bestRestoration[k] = cand
+        ans[k] = cand
         bestCount = unigrams[k][cand]
+  return ans
+
+def restoreUnigrams(dataset):
+  pickleFile = 'unigram-'+dataset['shortName']+'.pickle'
+  if os.path.exists(pickleFile):
+    with open(pickleFile, 'rb') as handle:
+      bestRestoration = pickle.load(handle)
+  else:
+    bestRestoration = restoreUnigramsTraining(dataset)
+    with open(pickleFile, 'wb') as handle:
+      pickle.dump(bestRestoration, handle, protocol=pickle.HIGHEST_PROTOCOL)
   ans = []
   for strippedSent in dataset['test']:
     restoredString = ''
