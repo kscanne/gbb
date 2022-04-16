@@ -3,10 +3,7 @@ import urllib.request
 import zipfile
 import lzma
 import diacritization_stripping_data
-#from nltk.tokenize import word_tokenize
-
-def word_tokenize(s):
-  return s.split(' ')
+from nltk.tokenize import word_tokenize, NLTKWordTokenizer
 
 def stripDiacritics(s):
   m = diacritization_stripping_data.strip_diacritization_uninames
@@ -99,10 +96,15 @@ def restoreUnigrams(dataset):
         bestCount = unigrams[k][cand]
   ans = []
   for strippedSent in dataset['test']:
-    restoredTokens = []
-    for t in word_tokenize(strippedSent):
-      restoredTokens.append(bestRestoration.get(t, t))
-    ans.append(' '.join(restoredTokens))
+    restoredString = ''
+    lastIndex = 0
+    for start, end in NLTKWordTokenizer().span_tokenize(strippedSent):
+      restoredString += strippedSent[lastIndex:start]
+      asciiToken = strippedSent[start:end]
+      restoredString += bestRestoration.get(asciiToken, asciiToken)
+      lastIndex = end
+    restoredString += strippedSent[lastIndex:]
+    ans.append(restoredString)
   return ans
 
 # Returns a dict with benchmark names as keys and dicts as values
