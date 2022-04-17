@@ -1,4 +1,4 @@
-import os.path
+import os
 import urllib.request
 import ssl
 import zipfile
@@ -6,6 +6,10 @@ import lzma
 import pickle
 import diacritization_stripping_data
 from nltk.tokenize import word_tokenize, NLTKWordTokenizer
+
+def mkdir_p(dir):
+  if not os.path.exists(dir):
+    os.makedirs(dir)
 
 def stripDiacritics(s):
   m = diacritization_stripping_data.strip_diacritization_uninames
@@ -28,30 +32,30 @@ def urlRetrieveNoSSL(url, fileName):
                         open(fileName, 'wb') as f:
     f.write(u.read())
 
-def retrieveDataset(name):
+def retrieveDataset(name, dataDir):
   ans = dict()
   files = ('dev','test','train')
   if name == 'Tuairisc 2015':
-    if not all(os.path.exists(x+'-clean.txt') for x in files):
+    if not all(os.path.exists(dataDir+x+'-clean.txt') for x in files):
       zipfileName = 'tuairisc-2015.zip'
-      if not os.path.exists(zipfileName):
+      if not os.path.exists(dataDir+zipfileName):
         zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
-        urlRetrieveNoSSL(zipURL, zipfileName)
-      with zipfile.ZipFile(zipfileName, 'r') as zipRef:
-        zipRef.extractall()
+        urlRetrieveNoSSL(zipURL, dataDir+zipfileName)
+      with zipfile.ZipFile(dataDir+zipfileName, 'r') as zipRef:
+        zipRef.extractall(path=dataDir)
     for x in files:
-      ans[x] = readCorpusFromFile(x+'-clean.txt')
+      ans[x] = readCorpusFromFile(dataDir+x+'-clean.txt')
     ans['shortName'] = 'tuairisc'
   elif name == 'Charles University':
-    if not all(os.path.exists('ga/target_'+x+'.txt.xz') for x in files):
+    if not all(os.path.exists(dataDir+'ga/target_'+x+'.txt.xz') for x in files):
       zipfileName = 'ga.zip'
-      if not os.path.exists(zipfileName):
+      if not os.path.exists(dataDir+zipfileName):
         zipURL = 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2607/ga.zip?sequence=1&isAllowed=y'
-        urllib.request.urlretrieve(zipURL, zipfileName)
-      with zipfile.ZipFile(zipfileName, 'r') as zipRef:
-        zipRef.extractall()
+        urllib.request.urlretrieve(zipURL, dataDir+zipfileName)
+      with zipfile.ZipFile(dataDir+zipfileName, 'r') as zipRef:
+        zipRef.extractall(path=dataDir)
     for x in files:
-      ans[x] = readCorpusFromXZFile('ga/target_'+x+'.txt.xz')
+      ans[x] = readCorpusFromXZFile(dataDir+'ga/target_'+x+'.txt.xz')
     ans['shortName'] = 'charles'
   else:
     sys.exit("Unknown dataset\n")
@@ -105,7 +109,7 @@ def restoreUnigramsTraining(dataset):
   return ans
 
 def restoreUnigrams(dataset):
-  pickleFile = 'unigram-'+dataset['shortName']+'.pickle'
+  pickleFile = 'models/unigram-'+dataset['shortName']+'.pickle'
   if os.path.exists(pickleFile):
     with open(pickleFile, 'rb') as handle:
       bestRestoration = pickle.load(handle)
@@ -128,11 +132,11 @@ def restoreUnigrams(dataset):
 
 # Returns a dict with benchmark names as keys and dicts as values
 # Keys of those dicts are the algorithms names, values are numerical tuples
-def evaluateAll(benchmarks, algorithms):
+def evaluateAll(benchmarks, algorithms, dataDir):
   ans = dict()
   for benchmark in benchmarks:
     ans[benchmark] = dict()
-    dataset = retrieveDataset(benchmark)
+    dataset = retrieveDataset(benchmark, dataDir)
     testCorpus = dataset['test']
     dataset['test'] = list(map(stripDiacritics, testCorpus))
     for k in algorithms:
@@ -169,6 +173,9 @@ def main():
     'Keep as ASCII': restoreIdentity,
     'Unigrams': restoreUnigrams,
   }
-  printMarkdown(evaluateAll(benchmarks, algorithms))
+  dataDir='obair/'
+  mkdir_p(dataDir)
+  mkdir_p('models')
+  printMarkdown(evaluateAll(benchmarks, algorithms, dataDir))
 
 main()
