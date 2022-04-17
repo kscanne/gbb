@@ -57,7 +57,7 @@ def retrieveDataset(name, dataDir):
     sys.exit("Unknown dataset\n")
   return ans
 
-# returns a tuple: (WER, Precision, Recall)
+# returns a tuple: (WLA, Precision, Recall)
 # Precision/Recall is for finding missing diacritics
 def score(predictedCorpus, goldCorpus):
   totalWords = 0
@@ -77,12 +77,12 @@ def score(predictedCorpus, goldCorpus):
       if hasDiacritics(p):
         predictedDiacritics += 1
       
-  wer = 100*correctWords/totalWords
+  wla = 100*correctWords/totalWords
   precision = float('nan')
   if predictedDiacritics != 0:
     precision = 100*correctDiacritics/predictedDiacritics
   recall = 100*correctDiacritics/totalDiacritics
-  return (wer, precision, recall)
+  return (wla, precision, recall)
 
 def restoreIdentity(dataset):
   return dataset['test']
@@ -149,7 +149,7 @@ def printMarkdown(allResults):
 
   for benchmark in allResults:
     print("\n##",benchmark,'([README](../../datasets/'+benchmark+'/README.md))')
-    metrics = ('WER','Precision','Recall')
+    metrics = ('WLA','Precision','Recall')
     print('|Algorithm|'+('|'.join(metrics))+'|')
     print('|---|'+('---|'*len(metrics)))
     resultHash = allResults[benchmark]
