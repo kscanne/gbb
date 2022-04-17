@@ -141,7 +141,6 @@ def evaluateAll(benchmarks, algorithms, dataDir):
   return ans
 
 def printMarkdown(allResults):
-  print("## Diacritic Restoration\n")
   if (len(allResults.keys())==1):
     print('There is currently **1** benchmark for this task.')
   else:
