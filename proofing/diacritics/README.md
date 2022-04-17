@@ -1,5 +1,6 @@
 ## Diacritic Restoration
 
+### Task Description
 In the case of Irish, this problem takes a text in
 which the fadas have been removed or omitted, and attempts to 
 put them back. This is an important task because 
@@ -43,12 +44,25 @@ For example, one would hope that a new term like “réamh-Bhreatimeacht”
 could be handled properly based on having seen the prefix 
 “réamh-” many times in training on other words.
 
+### Evaluation Metrics
+
 The primary metric we use to evaluate an algorithm on this task
 is its word-level accuracy (**WLA** in the tables below);
 we believe this gives more meaningful results that
 metrics at the character level.
 We also report precision and recall, again at the word level.
 All results are reported as percentages.
+
+### Algorithms
+
+* **Keep as ASCII**: This algorithm leaves the input text unchanged.
+This gives an estimate of the percentage of words in Irish that
+have no fadas.
+
+* **Unigrams**: Given an ASCII-only input token *w*, this algorithm
+chooses the most frequent word in the training set with asciification *w*.
+
+### Results
 
 There are currently **2** benchmarks for this task.
 
