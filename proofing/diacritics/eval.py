@@ -31,9 +31,9 @@ def urlRetrieveNoSSL(url, fileName):
     f.write(u.read())
 
 def retrieveDataset(name, dataDir):
-  ans = dict()
+  ans = {'slug' : name}
   files = ('dev','test','train')
-  if name == 'Tuairisc 2015':
+  if name == 'tuairisc':
     if not all(os.path.exists(dataDir+x+'-clean.txt') for x in files):
       zipfileName = 'tuairisc-2015.zip'
       if not os.path.exists(dataDir+zipfileName):
@@ -43,8 +43,7 @@ def retrieveDataset(name, dataDir):
         zipRef.extractall(path=dataDir)
     for x in files:
       ans[x] = readCorpusFromFile(dataDir+x+'-clean.txt')
-    ans['shortName'] = 'tuairisc'
-  elif name == 'Charles University':
+  elif name == 'charles':
     if not all(os.path.exists(dataDir+'ga/target_'+x+'.txt.xz') for x in files):
       zipfileName = 'ga.zip'
       if not os.path.exists(dataDir+zipfileName):
@@ -54,7 +53,6 @@ def retrieveDataset(name, dataDir):
         zipRef.extractall(path=dataDir)
     for x in files:
       ans[x] = readCorpusFromXZFile(dataDir+'ga/target_'+x+'.txt.xz')
-    ans['shortName'] = 'charles'
   else:
     sys.exit("Unknown dataset\n")
   return ans
@@ -107,7 +105,7 @@ def restoreUnigramsTraining(dataset):
   return ans
 
 def restoreUnigrams(dataset):
-  pickleFile = 'models/unigram-'+dataset['shortName']+'.pickle'
+  pickleFile = 'models/unigram-'+dataset['slug']+'.pickle'
   if os.path.exists(pickleFile):
     with open(pickleFile, 'rb') as handle:
       bestRestoration = pickle.load(handle)
@@ -150,20 +148,17 @@ def printMarkdown(allResults):
     countStr = '**'+str(len(allResults))+'**'
     print('There are currently', countStr, 'benchmarks for this task.')
 
-  for benchmarkName in allResults:
-    print("\n##",benchmarkName)
+  for benchmark in allResults:
+    print("\n##",benchmark,'([README](../../datasets/'+benchmark+'/README.md))')
     metrics = ('WER','Precision','Recall')
     print('|Algorithm|'+('|'.join(metrics))+'|')
     print('|---|'+('---|'*len(metrics)))
-    resultHash = allResults[benchmarkName]
+    resultHash = allResults[benchmark]
     for p in sorted(resultHash.items(), key=lambda x: x[1][0], reverse=True):
       print('|'+p[0]+'|'+('|'.join(map(lambda x: '{:.2f}'.format(x),p[1])))+'|')
 
 def main():
-  benchmarks = (
-    'Tuairisc 2015',
-    'Charles University',
-  )
+  benchmarks = ('tuairisc', 'charles')
   algorithms = {
     'Keep as ASCII': restoreIdentity,
     'Unigrams': restoreUnigrams,
