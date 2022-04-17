@@ -5,11 +5,11 @@ There are currently **2** benchmarks for this task.
 ## Tuairisc 2015
 |Algorithm|WER|Precision|Recall|
 |---|---|---|---|
-|Unigrams|0.979|0.986|0.925|
-|Keep as ASCII|0.754|nan|0.000|
+|Unigrams|97.86|98.60|92.46|
+|Keep as ASCII|75.45|nan|0.00|
 
 ## Charles University
 |Algorithm|WER|Precision|Recall|
 |---|---|---|---|
-|Unigrams|0.969|0.979|0.896|
-|Keep as ASCII|0.737|nan|0.000|
+|Unigrams|96.91|97.87|89.58|
+|Keep as ASCII|73.75|nan|0.00|

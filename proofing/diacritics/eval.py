@@ -81,11 +81,11 @@ def score(predictedCorpus, goldCorpus):
       if hasDiacritics(p):
         predictedDiacritics += 1
       
-  wer = correctWords/totalWords
+  wer = 100*correctWords/totalWords
   precision = float('nan')
   if predictedDiacritics != 0:
-    precision = correctDiacritics/predictedDiacritics
-  recall = correctDiacritics/totalDiacritics
+    precision = 100*correctDiacritics/predictedDiacritics
+  recall = 100*correctDiacritics/totalDiacritics
   return (wer, precision, recall)
 
 def restoreIdentity(dataset):
@@ -145,7 +145,7 @@ def evaluateAll(benchmarks, algorithms, dataDir):
   return ans
 
 def decFormat(x):
-  return '{:.3f}'.format(x)
+  return '{:.2f}'.format(x)
 
 def printMarkdown(allResults):
   print("## Diacritic Restoration\n")
