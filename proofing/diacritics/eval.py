@@ -4,7 +4,7 @@ import ssl
 import zipfile
 import lzma
 import pickle
-import diacritization_stripping_data
+import diacritization_stripping_data as dsd
 from nltk.tokenize import word_tokenize, NLTKWordTokenizer
 
 def mkdir_p(dir):
@@ -12,12 +12,10 @@ def mkdir_p(dir):
     os.makedirs(dir)
 
 def stripDiacritics(s):
-  m = diacritization_stripping_data.strip_diacritization_uninames
-  return ''.join(map(lambda c: m.get(c,c), s))
+  return ''.join(map(lambda c: dsd.strip_diacritization_uninames.get(c,c), s))
 
 def hasDiacritics(s):
-  m = diacritization_stripping_data.strip_diacritization_uninames
-  return any(c in m for c in s)
+  return any(c in dsd.strip_diacritization_uninames for c in s)
 
 def readCorpusFromFile(fileName):
   with open(fileName, "r", encoding="utf-8") as f:
@@ -144,9 +142,6 @@ def evaluateAll(benchmarks, algorithms, dataDir):
       ans[benchmark][k] = score(predictions, testCorpus)
   return ans
 
-def decFormat(x):
-  return '{:.2f}'.format(x)
-
 def printMarkdown(allResults):
   print("## Diacritic Restoration\n")
   if (len(allResults.keys())==1):
@@ -162,7 +157,7 @@ def printMarkdown(allResults):
     print('|---|'+('---|'*len(metrics)))
     resultHash = allResults[benchmarkName]
     for p in sorted(resultHash.items(), key=lambda x: x[1][0], reverse=True):
-      print('|'+p[0]+'|'+('|'.join(map(decFormat,p[1])))+'|')
+      print('|'+p[0]+'|'+('|'.join(map(lambda x: '{:.2f}'.format(x),p[1])))+'|')
 
 def main():
   benchmarks = (
