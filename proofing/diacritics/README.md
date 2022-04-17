@@ -43,16 +43,23 @@ For example, one would hope that a new term like “réamh-Bhreatimeacht”
 could be handled properly based on having seen the prefix 
 “réamh-” many times in training on other words.
 
+The primary metric we use to evaluate an algorithm on this task
+is its word-level accuracy (**WLA** in the tables below);
+we believe this gives more meaningful results that
+metrics at the character level.
+We also report precision and recall, again at the word level.
+All results are reported as percentages.
+
 There are currently **2** benchmarks for this task.
 
 ## tuairisc ([README](../../datasets/tuairisc/README.md))
-|Algorithm|WER|Precision|Recall|
+|Algorithm|WLA|Precision|Recall|
 |---|---|---|---|
 |Unigrams|97.86|98.60|92.46|
 |Keep as ASCII|75.45|nan|0.00|
 
 ## charles ([README](../../datasets/charles/README.md))
-|Algorithm|WER|Precision|Recall|
+|Algorithm|WLA|Precision|Recall|
 |---|---|---|---|
 |Unigrams|96.91|97.87|89.58|
 |Keep as ASCII|73.75|nan|0.00|
