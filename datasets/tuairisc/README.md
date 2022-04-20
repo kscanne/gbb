@@ -1,7 +1,7 @@
 
 **Name**: Tuairisc.ie 2015 corpus
 
-**Description**: This is a corpus of articles published by the Irish language online news service Tuairisc.ie in 2015. The corpus consists of just over 1.5 million words of text, segmented into sentences, and split into training, development, and test sets (80%-10%-10%). The articles were downloaded from the Tuairisc.ie website, and care was taken to remove boilerplate text, ads, and so on. All URLs, email addresses, and Twitter-style usernames were replaced with special tokens (<URL>, <EMAIL>, <USER>). 
+**Description**: This is a corpus of articles published by the Irish language online news service Tuairisc.ie in 2015. The corpus consists of just over 1.5 million words of text, segmented into sentences, and split into training, development, and test sets (80%-10%-10%). The articles were downloaded from the Tuairisc.ie website, and care was taken to remove boilerplate text, ads, and so on. All URLs, email addresses, and Twitter-style usernames were replaced with special tokens (`<URL>`, `<EMAIL>`, `<USER>`). 
 
 We aim to establish this corpus as a standard test set for a number
 of natural language processing tasks.  By setting aside articles from
