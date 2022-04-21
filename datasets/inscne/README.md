@@ -37,11 +37,11 @@ All rights reserved.
 1	Article iontach maith San <USER> lch 56 faoi dornálaíocht amaitéarach na hÉireann <USER> <URL>
 1	<USER> <USER> <USER> Ach déanfaidh cac maithe don talamh,nó an ndéanfaidh??
 0	<USER> Is cuimhin mo mháthair ag inse an scéil sin domh. Alltacht ar fad a bhí orm!
-0	Comhghairdeachas leat <USER> ar d’ainmniúchán mar ‘Pearsa Teilifíse na Bliana’ <USER> 👏🏼🤩 Láithreoir cumasach &amp; bean chairdiúil álainn &amp; nádúrtha. 💞✨💞 Cé go bhfuil an t-uafás oibre déanta agat le <USER>/<USER> bhí tú linne ar dtús <USER> 😜😅💜 <URL>
+0	Comhghairdeachas leat <USER> ar d’ainmniúchán mar ‘Pearsa Teilifíse na Bliana’ <USER> 👏🏼🤩 Láithreoir cumasach & bean chairdiúil álainn & nádúrtha. 💞✨💞 Cé go bhfuil an t-uafás oibre déanta agat le <USER>/<USER> bhí tú linne ar dtús <USER> 😜😅💜 <URL>
 1	Grma le <USER> ó Thaillte an Choláiste agus le Gaelscoil Phádraig Naofa a cheannaigh ciliméadar de <USER> in Ard Mhacha
 0	Podchraoltaí ar fáil anseo  <URL> <USER> <USER> <USER> <USER> <USER>
 1	Duine de mhuintir an Oileáin -  Gearóid Cheaist Ó Catháin, in aonacht le Nuala de Búrca(IGL), Claire Ní Mhuirthile (IGL)is scoláirí idirnáisiúnta Ionad na Gaeilge Labhartha. ☘️🛶🗽🏑 <URL>
-1	Beartaíocht múchta &amp; moilleadóireachta ó <USER> ó thaobh thodchaí Oifig Poist, An Bhun Bhig  #MoillShíoraí
+1	Beartaíocht múchta & moilleadóireachta ó <USER> ó thaobh thodchaí Oifig Poist, An Bhun Bhig  #MoillShíoraí
 1	Faigh scéal iomlán bhliain peile na Dubs anseo - <URL> #UpTheDubs #GAA <URL>
 ~~~
 
