@@ -32,7 +32,7 @@ aige ar chursaí an tsaoil. Seo láidreacht a bhí riamh in
 
 **BibTeX**:
 ~~~
-@misc{tuairisc,
+@misc{blogspot,
  title = {Irish blogger identification corpus},
  author = {Scannell, Kevin},
  url = {https://github.com/kscanne/gbb/tree/main/datasets/blogspot},
