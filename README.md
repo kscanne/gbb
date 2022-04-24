@@ -9,6 +9,7 @@ We currently have datasets for the following tasks:
 * [Author Identification](./classification/author/README.md)
 * [Bilingual Lexicon Induction](./translation/lexicon/README.md)
 * [Chunking](./syntax/chunking/README.md)
+* [Code-switching Detection](./tagging/codeswitch/README.md)
 * [Constituency Parsing](./syntax/constituency/README.md)
 * [Conversational Agents](./generation/conversation/README.md)
 * [Dependency Parsing](./syntax/dependency/README.md)
