@@ -104,7 +104,7 @@ i	i
 
 **BibTeX**:
 ~~~
-@misc{bli,
+@misc{errors2022,
  title = {Corpus of Irish tweets with errors annotated},
  author = {Scannell, Kevin},
  url = {https://github.com/kscanne/gbb/tree/main/datasets/errors},
