@@ -5,7 +5,7 @@
 randomly sampled Irish language tweets 
 in which all spelling and grammar errors have
 been manually annotated. There are about 100000 tokens in all,
-with over 3000 of these annotated with a correction of some kind.
+with over 3000 of them annotated with a correction of some kind.
 
 The annotation scheme is based on what I call the
 “confident Irish speaker” model.  This means that I've only corrected
@@ -18,12 +18,13 @@ accepted dialect spellings (*inniubh*, *dhuit*, *anso*, *goidé*),
 and non-standard mutations (*ar an dtigh*, etc.) are **not**
 treated as errors.
 At the same time, we are targeting standard Irish spelling
-as much as possible, and so we do correct some
+and writing conventions as much as possible, and so we do correct some
 non-standard forms, e.g. *tá'n* is corrected to *tá an*,
 and *cungnamh* (acceptable in older texts) to *cúnamh*.
-It's worth noting that these are edge cases; the 
+It's worth noting that the examples above are all edge cases; the 
 vast majority of corrections are for obvious typos 
-(often missing fadas) or simple grammatical errors (missing mutations, etc.).
+(often missing fadas) or simple grammatical errors
+(missing mutations, etc.).
 
 The tweets have been tokenized, and the corpus files are provided
 as tab-separated files with two columns.  The first column
@@ -72,7 +73,8 @@ and in all other cases, it is placed in the training set
 
 Some gentle preprocessing was performed on the text of each tweet
 to give some anonymity; Twitter usernames were replaced with
-a special token `<USER>` and URLs were replaced with `<URL>`.
+a special token `<USER>`, URLs were replaced with `<URL>`,
+and hashtags were replaced with `<HASHTAG>`.
 
 Copyright remains with the original authors of the tweets.
 All rights reserved.
