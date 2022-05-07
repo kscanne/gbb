@@ -6,7 +6,7 @@ of the Irish Dependency Treebank
 (IDT), which was part of a PhD research project
 by Teresa Lynn at Dublin City University, Ireland (Lynn, 2016).”
 A full description is available
-[here]<https://github.com/UniversalDependencies/UD_Irish-IDT/blob/master/README.txt>.
+[here](https://github.com/UniversalDependencies/UD_Irish-IDT/blob/master/README.txt).
 
 **Version**: UD version 2.10 (2022-05-15)
 
