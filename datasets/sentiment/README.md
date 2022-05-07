@@ -1,7 +1,7 @@
 
 **Name**: Irish Twitter corpus labeled by sentiment
 
-**Description**: This is a corpus of 24000 Irish language tweets posted to Twitter between 2007 and 2022. There are about 360k words across the 24000 tweets in the corpus. Tweets with positive sentiment are labeled with +1, and those with negative sentiment are labeled -1.
+**Description**: This is a corpus of 24000 Irish language tweets posted to Twitter between 2007 and 2022 and annotated by sentiment. There are about 360k words across the 24000 tweets in the corpus. Tweets with positive sentiment are labeled with +1, and those with negative sentiment are labeled -1.
 
 Instead of manually annotating, we used the presence of certain
 emoji/emoticons as a proxy for sentiment.
@@ -9,7 +9,7 @@ We fixed the following set of positive emoji:
 ~~~
 😀😂😃😄😛😅😆😎😇😁😊👍🙂😋😌😍
 ~~~
-and the set of positive emoticons as those matching this regular expression:
+and defined the set of positive emoticons to be those matching this regular expression:
 ~~~
 [:;=8][o^-]?[})D>]
 ~~~
@@ -18,25 +18,27 @@ The following is the set of negative emoji:
 ~~~
 😞😟😠😡😕🙁😣😔😖😫👎😩😤😮😱😨😰😦😧😢😥😪😓😒
 ~~~
-and the set of positive emoticons as those matching this regular expression:
+and the positive emoticons are defined to be those matching this regular expression:
 ~~~
 [:;=8][o^-]?[(<{]
 ~~~
 
 The positive label (+1) was then assigned to any tweet which
-contained at least one positive emoji or emoticon and no negative ones.
+contained at least one positive emoji or emoticon *and no negative ones*.
 The negative label (-1) was assigned to any tweet which contained
-at least one negative emoji or emoticon and no positive ones.
-All emojis/emoticons were then removed from the tweets in the dataset
-(otherwise the classification task would be trivial).
+at least one negative emoji or emoticon *and no positive ones*.
+All emojis/emoticons (not just the ones in the two sets above) were
+then removed from the tweets in the dataset,
+since otherwise the classification task would be trivial.
 
 We started with the full set of Irish language tweets as
 identified by the website [Indigenous Tweets](http://indigenoustweets.com/ga/),
-filtered out retweets, and then labeled the remaining tweets using
+filtered out retweets, and then labeled the remainder using
 the scheme above. The dataset was then assembled by taking a
-random sample of 12000 tweets labeled +1 and 12000 tweets labeled -1.
-It's worth nothing that there are many more tweets labeled +1 then -1 in
-the full Indigenous Tweets collection, and we've artificially
+random sample of 12000 tweets that were labeled +1 and 12000 tweets
+that were labeled -1.
+It's worth nothing that there were many more tweets labeled +1 than -1 in
+the full Indigenous Tweets collection; we've artificially
 forced the label priors to be 50/50 to make the classification task
 more challenging.
 
