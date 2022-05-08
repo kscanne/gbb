@@ -61,7 +61,7 @@ scríbhneoir aitheanta, a bhfuil duaiseanna litríochta go leor bronnta
 **BibTeX**:
 ~~~
 @misc{topaic,
- title = {Irish new categorization corpus},
+ title = {Irish news categorization corpus},
  author = {Scannell, Kevin},
  url = {https://github.com/kscanne/gbb/tree/main/datasets/topaic},
  copyright = {Copyright 2014-2022, Tuairisc Bheo Teoranta},
