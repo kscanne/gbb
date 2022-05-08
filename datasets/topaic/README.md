@@ -31,7 +31,11 @@ Anyone making use of a pre-trained language model with this dataset
 should ensure that articles from Tuairisc.ie published in 2015 
 are omitted from their model.
 
-The articles were downloaded from the Tuairisc.ie website, and care was taken to remove boilerplate text, ads, and so on. In all, the corpus contains about
+The articles were downloaded from the Tuairisc.ie website, and care was taken to remove boilerplate text, ads, and so on. In cases where the name of the 
+author appeared in the plain text conversion of an article, we replaced the
+name with the token `<AUTHOR>` (for fear that the author's names would
+be by far the strongest signal for this classifier).
+In all, the corpus contains about
 1.3 million words across the 2200 articles.
 
 All articles are Copyright 2014–2022 Tuairisc Bheo Teoranta.
