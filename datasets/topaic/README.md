@@ -2,7 +2,7 @@
 **Name**: Corpus of Irish new articles with category labels
 
 **Description**: This is a corpus of 2200 news articles from the online Irish news service Tuairisc.ie, in which each article is annotated with one of the following 11 categories:
-~~~
+
 |---|---|
 |cultur-litriocht|Culture: Literature|
 |cultur-scannan|Culture: Film|
@@ -15,7 +15,7 @@
 |sport-rugbai|Sport: Rugby|
 |sport-sacar|Sport: Soccer|
 |tuairimiocht|OpEd|
-~~~
+
 These categories are taken from the structure of the tuairisc.ie website 
 itself. For simplicity, we have only selected articles which appear
 in a single category for this corpus.
