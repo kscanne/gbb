@@ -3,6 +3,7 @@
 
 **Description**: This is a corpus of 2200 news articles from the online Irish news service Tuairisc.ie, in which each article is annotated with one of the following 11 categories:
 
+|Label|English Translation|
 |---|---|
 |cultur-litriocht|Culture: Literature|
 |cultur-scannan|Culture: Film|
