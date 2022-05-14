@@ -162,7 +162,7 @@ def main():
     'Keep as ASCII': restoreIdentity,
     'Unigrams': restoreUnigrams,
   }
-  dataDir='obair/'
+  dataDir='datasets/'
   mkdir_p(dataDir)
   mkdir_p('models')
   printMarkdown(evaluateAll(benchmarks, algorithms, dataDir))
