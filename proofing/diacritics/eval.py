@@ -5,6 +5,7 @@ import zipfile
 import lzma
 import pickle
 import re
+import sys
 import diacritization_stripping_data as dsd
 from nltk.tokenize import word_tokenize, NLTKWordTokenizer
 
@@ -13,8 +14,7 @@ def mkdir_p(dir):
     os.makedirs(dir)
 
 def slugify(name):
-  pattern = re.compile(r'[^A-Za-z]')
-  return re.sub(pattern, '', name)
+  return re.sub('[^A-Za-z]', '', name)
 
 def stripDiacritics(s):
   return ''.join(map(lambda c: dsd.strip_diacritization_uninames.get(c,c), s))
@@ -64,8 +64,12 @@ def retrieveDataset(name, dataDir):
     for x in files:
       ans[x] = readCorpusFromXZFile(dataDir+'ga/target_'+x+'.txt.xz')
   else:
-    sys.exit("Unknown dataset\n")
+    sys.exit('Unknown dataset: '+name+'\n')
   return ans
+
+# e.g. NLTK tokenizes "É.H." differently from "E.H."
+def easeTokenization(s):
+  return re.sub("[.ʻ'’]", ' ', s)
 
 # returns a tuple: (WLA, Precision, Recall)
 # Precision/Recall is for finding missing diacritics
@@ -76,7 +80,9 @@ def score(predictedCorpus, goldCorpus):
   predictedDiacritics = 0
   correctDiacritics = 0
   for predictedSent, goldSent in zip(predictedCorpus, goldCorpus):
-    for p, g in zip(word_tokenize(predictedSent), word_tokenize(goldSent)):
+    predictedTokens = word_tokenize(easeTokenization(predictedSent))
+    goldTokens = word_tokenize(easeTokenization(goldSent))
+    for p, g in zip(predictedTokens, goldTokens):
       totalWords += 1
       if p == g:
         correctWords += 1
@@ -93,6 +99,18 @@ def score(predictedCorpus, goldCorpus):
     precision = 100*correctDiacritics/predictedDiacritics
   recall = 100*correctDiacritics/totalDiacritics
   return (wla, precision, recall)
+
+def restoreAccentuate(dataset):
+  saveDir = 'predictions/'
+  fileName = saveDir+dataset['slug']+'-'+slugify('Accentuate')+'.txt'
+  if not os.path.exists(fileName):
+    zipfileName = 'accentuate.zip'
+    if not os.path.exists(saveDir+zipfileName):
+      zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
+      urlRetrieveNoSSL(zipURL, saveDir+zipfileName)
+    with zipfile.ZipFile(saveDir+zipfileName, 'r') as zipRef:
+      zipRef.extractall(path=saveDir)
+  return readCorpusFromFile(fileName)
 
 def restoreIdentity(dataset):
   return dataset['test']
@@ -156,25 +174,26 @@ def evaluateAll(benchmarks, algorithms, dataDir):
       ans[benchmark][k] = score(predictions, testCorpus)
   return ans
 
-def printMarkdown(allResults):
-  if (len(allResults.keys())==1):
+# benchmarks is passed to preserve the preferred order in the README
+def printMarkdown(benchmarks, allResults):
+  if (len(benchmarks)==1):
     print('There is currently **1** benchmark for this task.')
   else:
-    countStr = '**'+str(len(allResults))+'**'
+    countStr = '**'+str(len(benchmarks))+'**'
     print('There are currently', countStr, 'benchmarks for this task.')
 
-  for benchmark in allResults:
+  for benchmark in benchmarks:
     print("\n##",benchmark,'([README](../../datasets/'+benchmark+'/README.md))')
     metrics = ('WLA','Precision','Recall')
     print('|Algorithm|'+('|'.join(metrics))+'|')
     print('|---|'+('---|'*len(metrics)))
-    resultHash = allResults[benchmark]
-    for p in sorted(resultHash.items(), key=lambda x: x[1][0], reverse=True):
+    for p in sorted(allResults[benchmark].items(), key=lambda x: x[1][0], reverse=True):
       print('|'+p[0]+'|'+('|'.join(map(lambda x: '{:.2f}'.format(x),p[1])))+'|')
 
 def main():
   benchmarks = ('tuairisc', 'charles')
   algorithms = {
+    'Accentuate': restoreAccentuate,
     'Keep as ASCII': restoreIdentity,
     'Unigrams': restoreUnigrams,
   }
@@ -182,6 +201,6 @@ def main():
   mkdir_p(dataDir)
   mkdir_p('models')
   mkdir_p('predictions')
-  printMarkdown(evaluateAll(benchmarks, algorithms, dataDir))
+  printMarkdown(benchmarks, evaluateAll(benchmarks, algorithms, dataDir))
 
 main()
