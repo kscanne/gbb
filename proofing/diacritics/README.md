@@ -48,7 +48,7 @@ could be handled properly based on having seen the prefix
 
 The primary metric we use to evaluate an algorithm on this task
 is its word-level accuracy (**WLA** in the tables below);
-we believe this gives more meaningful results that
+we believe this gives more meaningful results than
 metrics at the character level.
 We also report precision and recall, again at the word level.
 All results are reported as percentages.
