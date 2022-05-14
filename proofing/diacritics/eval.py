@@ -4,6 +4,7 @@ import ssl
 import zipfile
 import lzma
 import pickle
+import re
 import diacritization_stripping_data as dsd
 from nltk.tokenize import word_tokenize, NLTKWordTokenizer
 
@@ -11,11 +12,20 @@ def mkdir_p(dir):
   if not os.path.exists(dir):
     os.makedirs(dir)
 
+def slugify(name):
+  pattern = re.compile(r'[^A-Za-z]')
+  return re.sub(pattern, '', name)
+
 def stripDiacritics(s):
   return ''.join(map(lambda c: dsd.strip_diacritization_uninames.get(c,c), s))
 
 def hasDiacritics(s):
   return any(c in dsd.strip_diacritization_uninames for c in s)
+
+def writeCorpusToFile(corpus, fileName):
+  with open(fileName, "w", encoding="utf-8") as f:
+    for sent in corpus:
+      f.write(sent+'\n')
 
 def readCorpusFromFile(fileName):
   with open(fileName, "r", encoding="utf-8") as f:
@@ -136,7 +146,12 @@ def evaluateAll(benchmarks, algorithms, dataDir):
     testCorpus = dataset['test']
     dataset['test'] = list(map(stripDiacritics, testCorpus))
     for k in algorithms:
-      predictions = algorithms[k](dataset)
+      outputFile = 'predictions/'+benchmark+'-'+slugify(k)+'.txt'
+      if os.path.exists(outputFile):
+        predictions = readCorpusFromFile(outputFile)
+      else:
+        predictions = algorithms[k](dataset)
+        writeCorpusToFile(predictions, outputFile)
       ans[benchmark][k] = score(predictions, testCorpus)
   return ans
 
@@ -165,6 +180,7 @@ def main():
   dataDir='datasets/'
   mkdir_p(dataDir)
   mkdir_p('models')
+  mkdir_p('predictions')
   printMarkdown(evaluateAll(benchmarks, algorithms, dataDir))
 
 main()
