@@ -76,13 +76,15 @@ There are currently **2** benchmarks for this task.
 ## tuairisc ([README](../../datasets/tuairisc/README.md))
 |Algorithm|WLA|Precision|Recall|
 |---|---|---|---|
-|Accentuate|98.38|95.47|97.48|
+|Accentuate|98.66|96.36|97.99|
+|Accentuate (Pretrained)|98.38|95.47|97.48|
 |Unigrams|97.76|98.60|92.45|
 |Keep as ASCII|74.29|nan|0.00|
 
 ## charles ([README](../../datasets/charles/README.md))
 |Algorithm|WLA|Precision|Recall|
 |---|---|---|---|
-|Accentuate|96.88|91.48|95.23|
+|Accentuate|97.83|94.30|96.30|
+|Accentuate (Pretrained)|96.88|91.48|95.23|
 |Unigrams|96.78|97.87|89.58|
 |Keep as ASCII|72.70|nan|0.00|
