@@ -145,6 +145,7 @@ def evaluateAll(benchmarks, algorithms, dataDir):
     dataset = retrieveDataset(benchmark, dataDir)
     testCorpus = dataset['test']
     dataset['test'] = list(map(stripDiacritics, testCorpus))
+    # writeCorpusToFile(dataset['test'], benchmark+'-ascii.txt')
     for k in algorithms:
       outputFile = 'predictions/'+benchmark+'-'+slugify(k)+'.txt'
       if os.path.exists(outputFile):
