@@ -100,16 +100,27 @@ def score(predictedCorpus, goldCorpus):
   recall = 100*correctDiacritics/totalDiacritics
   return (wla, precision, recall)
 
+def retrieveAccentuate():
+  saveDir = 'predictions/'
+  zipfileName = 'accentuate.zip'
+  if not os.path.exists(saveDir+zipfileName):
+    zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
+    urlRetrieveNoSSL(zipURL, saveDir+zipfileName)
+  with zipfile.ZipFile(saveDir+zipfileName, 'r') as zipRef:
+    zipRef.extractall(path=saveDir)
+
 def restoreAccentuate(dataset):
   saveDir = 'predictions/'
   fileName = saveDir+dataset['slug']+'-'+slugify('Accentuate')+'.txt'
   if not os.path.exists(fileName):
-    zipfileName = 'accentuate.zip'
-    if not os.path.exists(saveDir+zipfileName):
-      zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
-      urlRetrieveNoSSL(zipURL, saveDir+zipfileName)
-    with zipfile.ZipFile(saveDir+zipfileName, 'r') as zipRef:
-      zipRef.extractall(path=saveDir)
+    retrieveAccentuate()
+  return readCorpusFromFile(fileName)
+
+def restoreAccentuatePretrained(dataset):
+  saveDir = 'predictions/'
+  fileName = saveDir+dataset['slug']+'-'+slugify('AccentuatePretrained')+'.txt'
+  if not os.path.exists(fileName):
+    retrieveAccentuate()
   return readCorpusFromFile(fileName)
 
 def restoreIdentity(dataset):
@@ -194,6 +205,7 @@ def main():
   benchmarks = ('tuairisc', 'charles')
   algorithms = {
     'Accentuate': restoreAccentuate,
+    'Accentuate (Pretrained)': restoreAccentuatePretrained,
     'Keep as ASCII': restoreIdentity,
     'Unigrams': restoreUnigrams,
   }
