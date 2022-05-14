@@ -55,6 +55,13 @@ All results are reported as percentages.
 
 ### Algorithms
 
+* **Accentuate**: This is the algorithm used by the Accentuate.us
+web service. It is essentially a Bayesian classifer that incorporates
+both character and word-level features. Full details available
+in [this paper](https://cs.slu.edu/~scannell/pub/lre.pdf),
+with source code available in
+[this repository](https://sourceforge.net/projects/lingala/).
+
 * **Keep as ASCII**: This algorithm leaves the input text unchanged.
 This gives an estimate of the percentage of words in Irish that
 have no fadas.
