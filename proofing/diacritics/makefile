@@ -3,4 +3,11 @@ README.md: FORCE
 	/usr/bin/python3 eval.py >> temp.md
 	mv temp.md $@
 
+clean:
+	rm -Rf predictions
+
+distclean:
+	make clean
+	rm -Rf datasets models
+
 FORCE:
