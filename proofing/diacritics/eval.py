@@ -40,27 +40,26 @@ def urlRetrieveNoSSL(url, fileName):
                         open(fileName, 'wb') as f:
     f.write(u.read())
 
+def retrieveZip(url, zipName, dest):
+  if not os.path.exists(dest+zipName):
+    urlRetrieveNoSSL(url, dest+zipName)
+  with zipfile.ZipFile(dest+zipName, 'r') as zipRef:
+    zipRef.extractall(path=dest)
+
 def retrieveDataset(name, dataDir):
   ans = {'slug' : name}
   files = ('dev','test','train')
   if name == 'tuairisc':
     if not all(os.path.exists(dataDir+x+'-clean.txt') for x in files):
       zipfileName = 'tuairisc-2015.zip'
-      if not os.path.exists(dataDir+zipfileName):
-        zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
-        urlRetrieveNoSSL(zipURL, dataDir+zipfileName)
-      with zipfile.ZipFile(dataDir+zipfileName, 'r') as zipRef:
-        zipRef.extractall(path=dataDir)
+      zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
+      retrieveZip(zipURL, zipfileName, dataDir)
     for x in files:
       ans[x] = readCorpusFromFile(dataDir+x+'-clean.txt')
   elif name == 'charles':
     if not all(os.path.exists(dataDir+'ga/target_'+x+'.txt.xz') for x in files):
-      zipfileName = 'ga.zip'
-      if not os.path.exists(dataDir+zipfileName):
-        zipURL = 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2607/ga.zip?sequence=1&isAllowed=y'
-        urllib.request.urlretrieve(zipURL, dataDir+zipfileName)
-      with zipfile.ZipFile(dataDir+zipfileName, 'r') as zipRef:
-        zipRef.extractall(path=dataDir)
+      zipURL = 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2607/ga.zip?sequence=1&isAllowed=y'
+      retrieveZip(zipURL, 'ga.zip', dataDir)
     for x in files:
       ans[x] = readCorpusFromXZFile(dataDir+'ga/target_'+x+'.txt.xz')
   else:
@@ -101,13 +100,9 @@ def score(predictedCorpus, goldCorpus):
   return (wla, precision, recall)
 
 def retrieveAccentuate():
-  saveDir = 'predictions/'
   zipfileName = 'accentuate.zip'
-  if not os.path.exists(saveDir+zipfileName):
-    zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
-    urlRetrieveNoSSL(zipURL, saveDir+zipfileName)
-  with zipfile.ZipFile(saveDir+zipfileName, 'r') as zipRef:
-    zipRef.extractall(path=saveDir)
+  zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
+  retrieveZip(zipURL, zipfileName, 'predictions/')
 
 def restoreAccentuate(dataset):
   saveDir = 'predictions/'
