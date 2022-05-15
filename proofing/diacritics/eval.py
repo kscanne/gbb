@@ -99,7 +99,8 @@ def score(predictedCorpus, goldCorpus):
   if predictedDiacritics != 0:
     precision = 100*correctDiacritics/predictedDiacritics
   recall = 100*correctDiacritics/totalDiacritics
-  return (wla, precision, recall)
+  f1 = 2*precision*recall/(precision+recall)
+  return (wla, precision, recall, f1)
 
 def retrieveAccentuate():
   zipfileName = 'accentuate.zip'
@@ -192,7 +193,7 @@ def printMarkdown(benchmarks, allResults):
 
   for benchmark in benchmarks:
     print("\n##",benchmark,'([README](../../datasets/'+benchmark+'/README.md))')
-    metrics = ('WLA','Precision','Recall')
+    metrics = ('WLA','Precision','Recall','F<sub>1</sub>')
     print('|Algorithm|'+('|'.join(metrics))+'|')
     print('|---|'+('---|'*len(metrics)))
     for p in sorted(allResults[benchmark].items(), key=lambda x: x[1][0], reverse=True):
