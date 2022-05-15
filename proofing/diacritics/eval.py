@@ -41,27 +41,29 @@ def urlRetrieveNoSSL(url, fileName):
     f.write(u.read())
 
 def retrieveZip(url, zipName, dest):
-  if not os.path.exists(dest+zipName):
-    urlRetrieveNoSSL(url, dest+zipName)
-  with zipfile.ZipFile(dest+zipName, 'r') as zipRef:
+  pathToZip = dest+'/'+zipName
+  if not os.path.exists(pathToZip):
+    urlRetrieveNoSSL(url, pathToZip)
+  with zipfile.ZipFile(pathToZip, 'r') as zipRef:
     zipRef.extractall(path=dest)
 
-def retrieveDataset(name, dataDir):
+def retrieveDataset(name):
+  dest = 'datasets'
   ans = {'slug' : name}
   files = ('dev','test','train')
   if name == 'tuairisc':
-    if not all(os.path.exists(dataDir+x+'-clean.txt') for x in files):
+    if not all(os.path.exists(dest+'/'+x+'-clean.txt') for x in files):
       zipfileName = 'tuairisc-2015.zip'
       zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
-      retrieveZip(zipURL, zipfileName, dataDir)
+      retrieveZip(zipURL, zipfileName, dest)
     for x in files:
-      ans[x] = readCorpusFromFile(dataDir+x+'-clean.txt')
+      ans[x] = readCorpusFromFile(dest+'/'+x+'-clean.txt')
   elif name == 'charles':
-    if not all(os.path.exists(dataDir+'ga/target_'+x+'.txt.xz') for x in files):
+    if not all(os.path.exists(dest+'/ga/target_'+x+'.txt.xz') for x in files):
       zipURL = 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2607/ga.zip?sequence=1&isAllowed=y'
-      retrieveZip(zipURL, 'ga.zip', dataDir)
+      retrieveZip(zipURL, 'ga.zip', dest)
     for x in files:
-      ans[x] = readCorpusFromXZFile(dataDir+'ga/target_'+x+'.txt.xz')
+      ans[x] = readCorpusFromXZFile(dest+'/ga/target_'+x+'.txt.xz')
   else:
     sys.exit('Unknown dataset: '+name+'\n')
   return ans
@@ -162,11 +164,11 @@ def restoreUnigrams(dataset):
 
 # Returns a dict with benchmark names as keys and dicts as values
 # Keys of those dicts are the algorithms names, values are numerical tuples
-def evaluateAll(benchmarks, algorithms, dataDir):
+def evaluateAll(benchmarks, algorithms):
   ans = dict()
   for benchmark in benchmarks:
     ans[benchmark] = dict()
-    dataset = retrieveDataset(benchmark, dataDir)
+    dataset = retrieveDataset(benchmark)
     testCorpus = dataset['test']
     dataset['test'] = list(map(stripDiacritics, testCorpus))
     # writeCorpusToFile(dataset['test'], benchmark+'-ascii.txt')
@@ -204,10 +206,9 @@ def main():
     'Keep as ASCII': restoreIdentity,
     'Unigrams': restoreUnigrams,
   }
-  dataDir='datasets/'
-  mkdir_p(dataDir)
+  mkdir_p('datasets')
   mkdir_p('models')
   mkdir_p('predictions')
-  printMarkdown(benchmarks, evaluateAll(benchmarks, algorithms, dataDir))
+  printMarkdown(benchmarks, evaluateAll(benchmarks, algorithms))
 
 main()
