@@ -61,6 +61,12 @@ both character and word-level features. Full details available
 in [this paper](https://cs.slu.edu/~scannell/pub/lre.pdf),
 with source code available in
 [this repository](https://sourceforge.net/projects/lingala/).
+We report two sets of results for this algorithm. The row labeled simply
+“Accentuate” refers to the algorithm when trained using
+the training data for the benchmark dataset in question.
+The row labeled “Accentuate (Pretrained)” refers to the algorithm 
+when trained on a general Irish language corpus. The latter is
+what is made available through the Accentuate.us public API.
 
 * **Keep as ASCII**: This algorithm leaves the input text unchanged.
 This gives an estimate of the percentage of words in Irish that
