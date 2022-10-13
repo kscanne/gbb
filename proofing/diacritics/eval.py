@@ -7,6 +7,7 @@ import pickle
 import re
 import sys
 import diacritization_stripping_data as dsd
+import nltk
 from nltk.tokenize import word_tokenize, NLTKWordTokenizer
 
 def mkdir_p(dir):
@@ -200,6 +201,7 @@ def printMarkdown(benchmarks, allResults):
       print('|'+p[0]+'|'+('|'.join(map(lambda x: '{:.2f}'.format(x),p[1])))+'|')
 
 def main():
+  nltk.download('punkt')
   benchmarks = ('tuairisc', 'charles')
   algorithms = {
     'Accentuate': restoreAccentuate,
