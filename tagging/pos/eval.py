@@ -48,7 +48,7 @@ def hasFeature(fdict, key, val=None):
 
 def featureDict2Parole(fdict, slotlist):
   ans = ''
-  toParole = {'NomAcc': 'c', 'Imp': 'm', 'Past': 's'}
+  toParole = {'NomAcc': 'c', 'Imp': 'm', 'Past': 's', 'Num': 'm'}
   for slot in slotlist:
     if slot in fdict:
       if slot=='Tense':
@@ -65,15 +65,17 @@ def featureDict2Parole(fdict, slotlist):
         ans += val[0].lower()
     else:
       ans += '-'
+  ans = re.sub('-+$', '', ans)
   return ans
 
+# pass UD data and return PAROLE tag (best effort)
 def generateFullTag(lemma, upos, featstr):
   featdict = dict()
   if '=' in featstr:
     for piece in featstr.split('|'):
       k,v = piece.split('=')
       featdict[k] = v
-  basetag = {'NOUN': 'Nc', 'ADP': 'Sp', 'PUNCT': 'Fp', 'DET': 'D', 'VERB': 'Vm', 'PART': 'U', 'ADJ': 'Aq', 'PROPN': 'Np', 'CCONJ': 'Cc', 'PRON': 'P', 'NUM': 'M', 'ADV': 'R', 'SCONJ': 'Cs', 'AUX': 'W', 'X': 'X', 'SYM': 'X', 'INTJ': 'I'}
+  basetag = {'ADJ': 'Aq', 'ADP': 'Sp', 'ADV': 'R', 'AUX': 'W', 'CCONJ': 'Cc', 'DET': 'D', 'INTJ': 'I', 'NOUN': 'Nc', 'NUM': 'M', 'PART': 'U', 'PRON': 'P', 'PROPN': 'Np', 'PUNCT': 'Fp', 'SCONJ': 'Cs', 'SYM': 'Xs', 'VERB': 'Vm', 'X': 'X'}
   ans = basetag[upos]
   if upos=='ADJ':
     if hasFeature(featdict, 'VerbForm', 'Part'):
@@ -81,16 +83,35 @@ def generateFullTag(lemma, upos, featstr):
     else:
       ans += featureDict2Parole(featdict,['Degree', 'Gender', 'Number', 'Case'])
   elif upos=='ADP':
-    if hasFeature(featdict, 'Number'):  # agam, etc.
+    if hasFeature(featdict, 'PronType', 'Art'):  # before next!
+      ans += 'a'
+      ans += featureDict2Parole(featdict,['Gender', 'Number']) # Gender == -
+    elif hasFeature(featdict, 'Number'):  # agam, etc.
       ans = 'Pr'
       ans += featureDict2Parole(featdict,['Person', 'Gender', 'Number'])
     elif hasFeature(featdict, 'PrepForm', 'Cmpd'):
       ans += 'c'
-    elif hasFeature(featdict, 'PronType', 'Art'):
-      ans += 'a'
     elif hasFeature(featdict, 'Poss'):
-      ans += 'a'
+      ans += 'p'
+      if hasFeature(featdict, 'Number'):
+        ans += '-'
+        ans += featureDict2Parole(featdict,['Number']) 
   #  handle upos=='ADV"... map to Rg, Rd, Ri, etc.?
+  elif upos=='AUX':
+    if hasFeature(featdict,'Tense','Past') or hasFeature(featdict,'Mood','Cnd'):
+      ans += 's'
+    else:
+      ans += 'p'
+    if hasFeature(featdict, 'PronType', 'Rel'):
+      ans += 'r'   # UD doesn't currently distinguish indirect ('s' in PAROLE)
+    else:
+      ans += '-'
+    if hasFeature(featdict, 'Mood', 'Int'):
+      ans += 'q'
+    else:
+      ans += 'i'
+    if hasFeature(featdict, 'Polarity', 'Neg'):
+      ans += 'n'
   elif upos=='DET':
     if hasFeature(featdict, 'PronType', 'Art'):
       ans = 'Td-'
@@ -102,6 +123,7 @@ def generateFullTag(lemma, upos, featstr):
       ans = 'Di'
     elif hasFeature(featdict, 'Poss'):
       ans = 'Dp'
+      ans += featureDict2Parole(featdict,['Person', 'Gender', 'Number'])
     elif hasFeature(featdict, 'Definite', 'Def'):
       ans = 'Dq'
     # interrogative determiners?  Dw
@@ -130,6 +152,18 @@ def generateFullTag(lemma, upos, featstr):
   elif upos=='PART':
     if hasFeature(featdict, 'PartType', 'Vb'):
       ans = 'Q'
+      if hasFeature(featdict, 'Polarity', 'Neg'):
+        ans += 'n'
+    elif hasFeature(featdict, 'Form', 'Indirect'):  # lenar, ina, faoina, etc.
+      ans = 'Spr'
+    elif hasFeature(featdict, 'PartType', 'Inf'):
+      ans = 'Sp'  # "a dhéanamh"
+    elif hasFeature(featdict, 'PartType', 'Cop'):
+      pass  # 1x in UD
+    elif hasFeature(featdict, 'PartType', 'Cmpl'):
+      pass  # Fix?
+    else:  # Ua, Up, Uc, Us, Uv, Um, Ud
+      ans += featureDict2Parole(featdict, ['PartType'])
   elif upos=='PRON':
     if hasFeature(featdict, 'Reflex', 'Yes'):
       ans = 'Px'
@@ -144,8 +178,21 @@ def generateFullTag(lemma, upos, featstr):
         ans += 's'
   elif upos=='PROPN':
     ans += featureDict2Parole(featdict, ['Gender', 'Number', 'Case'])
+  elif upos=='SCONJ':
+    if hasFeature(featdict, 'VerbForm', 'Cop'):
+      ans += 'w'  # Csw
+    else:
+      ans += '-'
+    if hasFeature(featdict, 'Tense', 'Past'):
+      ans += 's'  # e.g. sular/Cs-s fhág...
+    ans = re.sub('-$', '', ans)
   elif upos=='VERB':
     ans += featureDict2Parole(featdict, ['Mood', 'Tense', 'Person', 'Number'])
+  elif upos=='X':
+    if hasFeature(featdict, 'Foreign', 'Yes'):
+      ans += 'f'
+    else:
+      ans += 'x'
   # Sort out Punct somehow based on lemma?
   # Fa=quote initial, Fb=hyphen, Fe=sentence final, Fi=sentence internal
   # Fp=other, Fz=quote final
@@ -280,20 +327,18 @@ def buildNLTKRegexTagger(dataset):
   tagCounts = getTagCountsTraining(dataset)
   mostFrequentTag = max(tagCounts, key=tagCounts.get)
   if '-full' in dataset['slug']:
-    patterns = [
-      (r'.*[A-ZÁÉÍÓÚ].*', 'Np'),
-      (r'.*', mostFrequentTag),
-    ]
+    pattFile = 'suffix-full.tsv'
+    properTag = 'Npms'
   else:
-    patterns = [
-      (r'.*fai?dh$', 'VERB'),
-      (r'.*fe?ar$', 'VERB'),
-      (r'.*fe?á$', 'VERB'),
-      (r'.*íonn$', 'VERB'),
-      (r'.*eann$', 'VERB'),
-      (r'.*[A-ZÁÉÍÓÚ].*', 'PROPN'),
-      (r'.*', mostFrequentTag),
-    ]
+    pattFile = 'suffix.tsv'
+    properTag = 'PROPN'
+  patterns = []
+  with open(pattFile, "r", encoding="utf-8") as f:
+    for line in f:
+      pieces = line.rstrip().split('\t')
+      patterns.append(('.*'+pieces[0]+'$', pieces[1]))
+  patterns.append((r'.*[A-ZÁÉÍÓÚ].*', properTag))
+  patterns.append((r'.*', mostFrequentTag))
   return nltk.RegexpTagger(patterns)
 
 def buildNLTKUnigramTagger(dataset):
@@ -322,6 +367,27 @@ def trigramTagger(dataset):
   trigramModel = nltk.TrigramTagger(dataset['train'], backoff=bigramModel)
   testNoTags = [stripTags(s) for s in dataset['test']]
   return trigramModel.tag_sents(testNoTags)
+
+def hmmTagger(dataset):
+  hmmModel = nltk.HiddenMarkovModelTagger.train(dataset['train'])
+  testNoTags = [stripTags(s) for s in dataset['test']]
+  return hmmModel.tag_sents(testNoTags)
+
+def perceptronTagger(dataset):
+  pModel = nltk.tag.perceptron.PerceptronTagger(load=False)
+  pModel.train(dataset['train'])
+  testNoTags = [stripTags(s) for s in dataset['test']]
+  return pModel.tag_sents(testNoTags)
+
+def crfTagger(dataset):
+  crfModel = nltk.tag.CRFTagger()
+  modelFile = 'models/'+dataset['slug']+'.crf.tagger'
+  if os.path.exists(modelFile):
+    crfModel.set_model_file(modelFile)
+  else:
+    crfModel.train(dataset['train'],modelFile)
+  testNoTags = [stripTags(s) for s in dataset['test']]
+  return crfModel.tag_sents(testNoTags)
 
 # Returns a dict with benchmark names as keys and dicts as values
 # Keys of those dicts are the algorithms names, values are numerical tuples
@@ -368,6 +434,9 @@ def main():
     'Unigram tagger': unigramTagger,
     'Bigram tagger': bigramTagger,
     'Trigram tagger': trigramTagger,
+    'HMM': hmmTagger,
+    'Perceptron': perceptronTagger,
+    'CRF': crfTagger,
   }
   mkdir_p('datasets')
   mkdir_p('models')
