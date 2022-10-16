@@ -6,6 +6,7 @@ import pickle
 import re
 import sys
 import nltk
+from ufal.udpipe import Model, Pipeline, ProcessingError
 
 def mkdir_p(dir):
   if not os.path.exists(dir):
@@ -48,7 +49,7 @@ def hasFeature(fdict, key, val=None):
 
 def featureDict2Parole(fdict, slotlist):
   ans = ''
-  toParole = {'NomAcc': 'c', 'Imp': 'm', 'Past': 's', 'Num': 'm'}
+  toParole = {'NomAcc': 'c', 'Nom': 'c', 'Imp': 'm', 'Past': 's', 'Num': 'm'}
   for slot in slotlist:
     if slot in fdict:
       if slot=='Tense':
@@ -201,26 +202,29 @@ def generateFullTag(lemma, upos, featstr):
   return ans
 
 # if second arg is True, convert features into extended POS tags
+def CoNNL_U2Corpus(conlluText, full_p):
+  ans = []
+  currsent = []
+  for line in conlluText.split('\n'):
+    if len(line)==0:
+      if len(currsent)>0:
+        ans.append(currsent)
+        currsent = []
+    elif line[0]=='#':
+      pass
+    else:
+      pieces = line.split('\t')
+      if full_p:
+        fullTag = generateFullTag(pieces[2],pieces[3],pieces[5])
+        currsent.append((pieces[1], fullTag))
+      else:
+        currsent.append((pieces[1], pieces[3]))
+  return ans
+
 def readCorpusFromCoNNL_U(fileName, full_p):
   with open(fileName, "r", encoding="utf-8") as f:
-    ans = []
-    currsent = []
-    for line in f:
-      line = line.rstrip()
-      if len(line)==0:
-        if len(currsent)>0:
-          ans.append(currsent)
-          currsent = []
-      elif line[0]=='#':
-        pass
-      else:
-        pieces = line.split('\t')
-        if full_p:
-          fullTag = generateFullTag(pieces[2],pieces[3],pieces[5])
-          currsent.append((pieces[1], fullTag))
-        else:
-          currsent.append((pieces[1], pieces[3]))
-  return ans
+    slurped = f.read()
+    return CoNNL_U2Corpus(slurped, full_p)
 
 def writeTagDict(tagDict, fileName):
   with open(fileName, "w", encoding="utf-8") as f:
@@ -424,6 +428,48 @@ def crfTagger(dataset):
   testNoTags = [stripTags(s) for s in dataset['test']]
   return crfModel.tag_sents(testNoTags)
 
+def tntTagger(dataset):
+  pickleFile = 'models/'+dataset['slug']+'-tnt.pickle'
+  if os.path.exists(pickleFile):
+    with open(pickleFile, 'rb') as handle:
+      tntModel = pickle.load(handle)
+  else:
+    defaultTagger = buildNLTKRegexTagger(dataset)
+    #tntModel = nltk.tag.tnt.TnT(defaultTagger)
+    tntModel = nltk.tag.tnt.TnT()
+    tntModel.train(dataset['train'])
+    with open(pickleFile, 'wb') as handle:
+      pickle.dump(tntModel, handle, protocol=pickle.HIGHEST_PROTOCOL)
+  testNoTags = [stripTags(s) for s in dataset['test']]
+  return tntModel.tagdata(testNoTags)
+
+def runUDPipe(dataset, modelFile):
+  if not os.path.exists(modelFile):
+    zipfileName = 'udpipe-gbb.zip'
+    zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
+    retrieveZip(zipURL, zipfileName, 'models')
+  model = Model.load(modelFile)
+  pipeline = Pipeline(model, 'vertical', Pipeline.DEFAULT, Pipeline.DEFAULT, 'conllu')
+  error = ProcessingError()
+  text = ''
+  for s in dataset['test']:
+    for taggedToken in s:
+      text += taggedToken[0]+'\n'
+    text += '\n'
+  conlluOutput = pipeline.process(text, error)
+  if error.occurred():
+    sys.stderr.write('Error: '+error.message+'\n')
+  return CoNNL_U2Corpus(conlluOutput, '-full' in dataset['slug'])
+
+def udPipeTagger(dataset):
+  return runUDPipe(dataset, 'models/trained.udpipe')
+
+def udPipeTaggerDict(dataset):
+  return runUDPipe(dataset, 'models/trained-dict.udpipe')
+
+def udPipeTaggerDictEmbedding(dataset):
+  return runUDPipe(dataset, 'models/trained-w2v-dict.udpipe')
+
 # Returns a dict with benchmark names as keys and dicts as values
 # Keys of those dicts are the algorithms names, values are numerical tuples
 def evaluateAll(benchmarks, algorithms):
@@ -474,6 +520,10 @@ def main():
     'HMM tagger': hmmTagger,
     'Perceptron': perceptronTagger,
     'CRF tagger': crfTagger,
+    'TnT tagger': tntTagger,
+    'UDPipe': udPipeTagger,
+    'UDPipe with Dict': udPipeTaggerDict,
+    'UDPipe with Dict and W2V': udPipeTaggerDictEmbedding,
   }
   mkdir_p('datasets')
   mkdir_p('models')
