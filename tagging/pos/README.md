@@ -6,7 +6,6 @@ There are currently **2** benchmarks for this task.
 |Algorithm|Accuracy|
 |---|---|
 |UDPipe with Dict|94.61|
-|UDPipe with Dict and W2V|94.61|
 |UDPipe|93.85|
 |Perceptron|93.28|
 |Bigram tagger|90.32|
@@ -21,7 +20,6 @@ There are currently **2** benchmarks for this task.
 |Algorithm|Accuracy|
 |---|---|
 |UDPipe with Dict|86.96|
-|UDPipe with Dict and W2V|86.96|
 |UDPipe|86.39|
 |Perceptron|84.67|
 |CRF tagger|82.81|

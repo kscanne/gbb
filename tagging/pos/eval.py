@@ -15,6 +15,13 @@ def mkdir_p(dir):
 def slugify(name):
   return re.sub('[^A-Za-z]', '', name)
 
+# unique words seen in training, plus special tokens <UNK> and <PAD>
+def getVocabulary(corpus):
+  vocab = list(set([w for sent in corpus for (w,t) in sent]))
+  vocab.append('<UNK>')
+  vocab.append('<PAD>')
+  return vocab
+
 def writeCorpusToTwoCols(corpus, fileName):
   with open(fileName, "w", encoding="utf-8") as f:
     for sent in corpus:
@@ -467,9 +474,6 @@ def udPipeTagger(dataset):
 def udPipeTaggerDict(dataset):
   return runUDPipe(dataset, 'models/trained-dict.udpipe')
 
-def udPipeTaggerDictEmbedding(dataset):
-  return runUDPipe(dataset, 'models/trained-w2v-dict.udpipe')
-
 # Returns a dict with benchmark names as keys and dicts as values
 # Keys of those dicts are the algorithms names, values are numerical tuples
 def evaluateAll(benchmarks, algorithms):
@@ -523,7 +527,6 @@ def main():
     'TnT tagger': tntTagger,
     'UDPipe': udPipeTagger,
     'UDPipe with Dict': udPipeTaggerDict,
-    'UDPipe with Dict and W2V': udPipeTaggerDictEmbedding,
   }
   mkdir_p('datasets')
   mkdir_p('models')
