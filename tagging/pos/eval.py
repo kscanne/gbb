@@ -349,7 +349,14 @@ def buildNLTKUnigramTagger(dataset):
   return nltk.UnigramTagger(dataset['train'], backoff=defaultTagger)
 
 def unigramTagger(dataset):
-  unigramModel = buildNLTKUnigramTagger(dataset)
+  pickleFile = 'models/'+dataset['slug']+'-unigram.pickle'
+  if os.path.exists(pickleFile):
+    with open(pickleFile, 'rb') as handle:
+      unigramModel = pickle.load(handle)
+  else:
+    unigramModel = buildNLTKUnigramTagger(dataset)
+    with open(pickleFile, 'wb') as handle:
+      pickle.dump(unigramModel, handle, protocol=pickle.HIGHEST_PROTOCOL)
   testNoTags = [stripTags(s) for s in dataset['test']]
   return unigramModel.tag_sents(testNoTags)
 
@@ -358,24 +365,52 @@ def buildNLTKBigramTagger(dataset):
   return nltk.BigramTagger(dataset['train'], backoff=unigramModel)
 
 def bigramTagger(dataset):
-  bigramModel = buildNLTKBigramTagger(dataset)
+  pickleFile = 'models/'+dataset['slug']+'-bigram.pickle'
+  if os.path.exists(pickleFile):
+    with open(pickleFile, 'rb') as handle:
+      bigramModel = pickle.load(handle)
+  else:
+    bigramModel = buildNLTKBigramTagger(dataset)
+    with open(pickleFile, 'wb') as handle:
+      pickle.dump(bigramModel, handle, protocol=pickle.HIGHEST_PROTOCOL)
   testNoTags = [stripTags(s) for s in dataset['test']]
   return bigramModel.tag_sents(testNoTags)
 
 def trigramTagger(dataset):
-  bigramModel = buildNLTKBigramTagger(dataset)
-  trigramModel = nltk.TrigramTagger(dataset['train'], backoff=bigramModel)
+  pickleFile = 'models/'+dataset['slug']+'-trigram.pickle'
+  if os.path.exists(pickleFile):
+    with open(pickleFile, 'rb') as handle:
+      trigramModel = pickle.load(handle)
+  else:
+    bigramModel = buildNLTKBigramTagger(dataset)
+    trigramModel = nltk.TrigramTagger(dataset['train'], backoff=bigramModel)
+    with open(pickleFile, 'wb') as handle:
+      pickle.dump(trigramModel, handle, protocol=pickle.HIGHEST_PROTOCOL)
   testNoTags = [stripTags(s) for s in dataset['test']]
   return trigramModel.tag_sents(testNoTags)
 
 def hmmTagger(dataset):
-  hmmModel = nltk.HiddenMarkovModelTagger.train(dataset['train'])
+  pickleFile = 'models/'+dataset['slug']+'-hmm.pickle'
+  if os.path.exists(pickleFile):
+    with open(pickleFile, 'rb') as handle:
+      hmmModel = pickle.load(handle)
+  else:
+    hmmModel = nltk.HiddenMarkovModelTagger.train(dataset['train'])
+    #with open(pickleFile, 'wb') as handle:
+    #  pickle.dump(hmmModel, handle, protocol=pickle.HIGHEST_PROTOCOL)
   testNoTags = [stripTags(s) for s in dataset['test']]
   return hmmModel.tag_sents(testNoTags)
 
 def perceptronTagger(dataset):
-  pModel = nltk.tag.perceptron.PerceptronTagger(load=False)
-  pModel.train(dataset['train'])
+  pickleFile = 'models/'+dataset['slug']+'-perceptron.pickle'
+  if os.path.exists(pickleFile):
+    with open(pickleFile, 'rb') as handle:
+      pModel = pickle.load(handle)
+  else:
+    pModel = nltk.tag.perceptron.PerceptronTagger(load=False)
+    pModel.train(dataset['train'])
+    with open(pickleFile, 'wb') as handle:
+      pickle.dump(pModel, handle, protocol=pickle.HIGHEST_PROTOCOL)
   testNoTags = [stripTags(s) for s in dataset['test']]
   return pModel.tag_sents(testNoTags)
 
@@ -385,7 +420,7 @@ def crfTagger(dataset):
   if os.path.exists(modelFile):
     crfModel.set_model_file(modelFile)
   else:
-    crfModel.train(dataset['train'],modelFile)
+    crfModel.train(dataset['train'], modelFile)
   testNoTags = [stripTags(s) for s in dataset['test']]
   return crfModel.tag_sents(testNoTags)
 
@@ -394,9 +429,11 @@ def crfTagger(dataset):
 def evaluateAll(benchmarks, algorithms):
   ans = dict()
   for benchmark in benchmarks:
+    sys.stderr.write('Benchmark: '+benchmark+'\n')
     ans[benchmark] = dict()
     dataset = retrieveDataset(benchmark)
     for k in algorithms:
+      sys.stderr.write('  Algorithm: '+k+'\n')
       outputFile = 'predictions/'+benchmark+'-'+slugify(k)+'.tsv'
       if os.path.exists(outputFile):
         predictions = readCorpusFromTwoCols(outputFile)
@@ -434,9 +471,9 @@ def main():
     'Unigram tagger': unigramTagger,
     'Bigram tagger': bigramTagger,
     'Trigram tagger': trigramTagger,
-    'HMM': hmmTagger,
+    'HMM tagger': hmmTagger,
     'Perceptron': perceptronTagger,
-    'CRF': crfTagger,
+    'CRF tagger': crfTagger,
   }
   mkdir_p('datasets')
   mkdir_p('models')
