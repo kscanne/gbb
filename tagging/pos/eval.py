@@ -442,8 +442,7 @@ def tntTagger(dataset):
       tntModel = pickle.load(handle)
   else:
     defaultTagger = buildNLTKRegexTagger(dataset)
-    #tntModel = nltk.tag.tnt.TnT(defaultTagger)
-    tntModel = nltk.tag.tnt.TnT()
+    tntModel = nltk.tag.tnt.TnT(unk=defaultTagger, Trained=True)
     tntModel.train(dataset['train'])
     with open(pickleFile, 'wb') as handle:
       pickle.dump(tntModel, handle, protocol=pickle.HIGHEST_PROTOCOL)
