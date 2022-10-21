@@ -400,15 +400,9 @@ def trigramTagger(dataset):
   testNoTags = [stripTags(s) for s in dataset['test']]
   return trigramModel.tag_sents(testNoTags)
 
+# not picklable
 def hmmTagger(dataset):
-  pickleFile = 'models/'+dataset['slug']+'-hmm.pickle'
-  if os.path.exists(pickleFile):
-    with open(pickleFile, 'rb') as handle:
-      hmmModel = pickle.load(handle)
-  else:
-    hmmModel = nltk.HiddenMarkovModelTagger.train(dataset['train'])
-    #with open(pickleFile, 'wb') as handle:
-    #  pickle.dump(hmmModel, handle, protocol=pickle.HIGHEST_PROTOCOL)
+  hmmModel = nltk.HiddenMarkovModelTagger.train(dataset['train'])
   testNoTags = [stripTags(s) for s in dataset['test']]
   return hmmModel.tag_sents(testNoTags)
 
