@@ -261,6 +261,8 @@ def constraint2UD(s):
     features.append('Abbr=Yes')
   elif pieces[0]=='Verbal' and UDtag=='NOUN':
     features.append('VerbForm=Inf')
+  elif pieces[0]=='Art':
+    features.append('PronType=Art')
   pieces.pop(0)
   tagMap = readUDFeatures('map.tsv')
   for x in pieces:
@@ -319,7 +321,6 @@ def readCorpusFromConstraintFormat(fileName, tagCounts, full_p):
   with open(fileName, "r", encoding="utf-8") as f:
     for line in f:
       line = line.rstrip()
-      sys.stderr.write('reading line:'+line+'\n')
       if len(line)>0 and line[0]=='\t':
         # convert line into a tag (depending on full_p)
         tagstart = line.find('" ')+2
