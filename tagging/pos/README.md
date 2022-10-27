@@ -8,6 +8,7 @@ There are currently **2** benchmarks for this task.
 |UDPipe with Dict|94.61|
 |UDPipe|93.85|
 |Perceptron|93.28|
+|Constraint-based tagger|91.54|
 |TnT tagger|90.98|
 |Bigram tagger|90.32|
 |Trigram tagger|90.30|
@@ -24,6 +25,7 @@ There are currently **2** benchmarks for this task.
 |Perceptron|84.67|
 |CRF tagger|82.81|
 |TnT tagger|79.09|
+|Constraint-based tagger|78.99|
 |HMM tagger|78.08|
 |Trigram tagger|75.25|
 |Bigram tagger|74.92|
