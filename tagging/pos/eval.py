@@ -8,6 +8,20 @@ import sys
 import nltk
 from ufal.udpipe import Model, Pipeline, ProcessingError
 
+# return the key which has the largest value in the
+# dictionary focloir from among the elements of the list liosta
+def argmax(focloir, liosta):
+  if len(liosta)==0:
+    return None
+  ans = None
+  maxval = None
+  for x in liosta:
+    if x in focloir:
+      if maxval==None or focloir[x] > maxval:
+        maxval = focloir[x]
+        ans = x
+  return ans
+
 def mkdir_p(dir):
   if not os.path.exists(dir):
     os.makedirs(dir)
@@ -208,7 +222,69 @@ def generateFullTag(lemma, upos, featstr):
     ans = 'Y'
   return ans
 
+def readUDFeatures(fileName):
+  ans = dict()
+  with open(fileName, "r", encoding="utf-8") as f:
+    for line in f:
+      line = line.rstrip()
+      tag, feats = line.split('\t')
+      ans[tag] = feats
+  return ans
+
+# argument is of the form "Part Vb Rel Direct", "Noun Masc Com Sg", etc.
+# returns a pair consisting of the UD POS tag and the UD feature string;
+# so for these examples, something like:
+# ('PART', 'Form=Direct|PartType=Vb|PronType=Rel') or
+# ('NOUN', 'Case=Nom|Gender=Masc|Number=Sing')
+def constraint2UD(s):
+  pieces = s.split(' ')
+  if pieces[0] in ['Guess', 'CM', 'CU']:
+    pieces.pop(0)
+  features = []
+
+  pos2UD = {'Abr': 'PROPN', 'Art': 'DET', 'Cmc': 'X', 'Cop': 'AUX', 'Foreign': 'X', 'Fragment': 'X', 'Item': 'NUM', 'Itj': 'INTJ', 'Prep': 'ADP', 'Prop': 'PROPN', 'Subst': 'NOUN', 'Unknown': 'X', '?': 'X'}
+  if pieces[0]=='Conj':
+    if len(pieces)>1 and pieces[1]=='Subord':
+      UDtag = 'SCONJ'
+    else:
+      UDtag = 'CCONJ'
+  elif pieces[0]=='Verbal':
+    if len(pieces)>1 and pieces[1]=='Adj':
+      UDtag = 'ADJ'
+    else:
+      UDtag = 'NOUN'
+  elif len(pieces)>1 and pieces[0]=='Pron' and pieces[1]=='Prep': # agam, etc.
+    UDtag = 'ADP'
+  else:
+    UDtag = pos2UD.get(pieces[0], pieces[0].upper())
+  if pieces[0]=='Abr':
+    features.append('Abbr=Yes')
+  elif pieces[0]=='Verbal' and UDtag=='NOUN':
+    features.append('VerbForm=Inf')
+  pieces.pop(0)
+  tagMap = readUDFeatures('map.tsv')
+  for x in pieces:
+    if x in tagMap:
+      features.append(tagMap[x])  # sometimes > 1
+    elif x=='Comp':
+      if UDtag=='PART':
+        features.append('PartType=Comp')
+      elif UDtag=='ADJ':
+        features.append('Degree=Cmp,Sup')
+    elif x=='Voc':
+      if UDtag=='PART':
+        features.append('PartType=Voc')
+      else:  # NOUN/ADJ
+        features.append('Case=Voc')
+    elif x=='Emph':
+      if UDtag=='PRON' or UDtag=='ADP':  # mise, agamsa
+        features.append('PronType=Emp')
+      else:  # NOUN/VERB
+        features.append('Form=Emp')
+  return (UDtag, '|'.join(features))
+
 # if second arg is True, convert features into extended POS tags
+# abstract away from file reading since UDPipe returns CoNNL_U text
 def CoNNL_U2Corpus(conlluText, full_p):
   ans = []
   currsent = []
@@ -232,6 +308,45 @@ def readCorpusFromCoNNL_U(fileName, full_p):
   with open(fileName, "r", encoding="utf-8") as f:
     slurped = f.read()
     return CoNNL_U2Corpus(slurped, full_p)
+
+# 2nd arg is dictionary of tag counts in training data
+# used to make a (unigram) choice in cases where Elaine's tagger does not
+def readCorpusFromConstraintFormat(fileName, tagCounts, full_p):
+  ans = []
+  currsent = []
+  currcands = []
+  currtok = None
+  with open(fileName, "r", encoding="utf-8") as f:
+    for line in f:
+      line = line.rstrip()
+      sys.stderr.write('reading line:'+line+'\n')
+      if len(line)>0 and line[0]=='\t':
+        # convert line into a tag (depending on full_p)
+        tagstart = line.find('" ')+2
+        tag, featureString = constraint2UD(line[tagstart:])
+        if full_p:
+          tag = generateFullTag('', tag, featureString)
+        currcands.append(tag)
+      else:
+        if len(currcands)>0:
+          bestTag = argmax(tagCounts, currcands)
+          if bestTag==None: # if no predicted tags were ever seen in training
+            if len(currcands)==1:
+              bestTag = currcands[0]
+            else:
+              bestTag = argmax(tagCounts, tagCounts.keys())
+          for subtoken in currtok.split(' '):
+            currsent.append((subtoken, bestTag))
+          currcands = []
+          currtok = None
+        if len(line)==0:
+          ans.append(currsent)
+          currsent = []
+        elif line[0]=='"':
+          currtok = line[2:-2]
+        else:
+          sys.stderr.write('Error parsing file: '+line+'\n')
+  return ans
 
 def writeTagDict(tagDict, fileName):
   with open(fileName, "w", encoding="utf-8") as f:
@@ -467,6 +582,18 @@ def udPipeTagger(dataset):
 def udPipeTaggerDict(dataset):
   return runUDPipe(dataset, 'models/trained-dict.udpipe')
 
+# the rawOutput file contains the output of Elaine's tagger
+# but with a small bit of manual post-editing to ensure
+# the sentence segmentation and tokenization matches the UD test files
+def constraintTagger(dataset):
+  rawOutput = 'predictions/constraint-based-output.txt'
+  if not os.path.exists(rawOutput):
+    zipfileName = 'eud-output.zip'
+    zipURL = 'https://cs.slu.edu/~scannell/gbb/'+zipfileName
+    retrieveZip(zipURL, zipfileName, 'predictions')
+  tagCounts = getTagCountsTraining(dataset)
+  return readCorpusFromConstraintFormat(rawOutput, tagCounts, '-full' in dataset['slug'])
+
 # Returns a dict with benchmark names as keys and dicts as values
 # Keys of those dicts are the algorithms names, values are numerical tuples
 def evaluateAll(benchmarks, algorithms):
@@ -520,6 +647,7 @@ def main():
     'TnT tagger': tntTagger,
     'UDPipe': udPipeTagger,
     'UDPipe with Dict': udPipeTaggerDict,
+    'Constraint-based tagger': constraintTagger,
   }
   mkdir_p('datasets')
   mkdir_p('models')
