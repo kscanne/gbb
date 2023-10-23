@@ -97,7 +97,7 @@ def generateFullTag(lemma, upos, featstr):
     for piece in featstr.split('|'):
       k,v = piece.split('=')
       featdict[k] = v
-  basetag = {'ADJ': 'Aq', 'ADP': 'Sp', 'ADV': 'R', 'AUX': 'W', 'CCONJ': 'Cc', 'DET': 'D', 'INTJ': 'I', 'NOUN': 'Nc', 'NUM': 'M', 'PART': 'U', 'PRON': 'P', 'PROPN': 'Np', 'PUNCT': 'Fp', 'SCONJ': 'Cs', 'SYM': 'Xs', 'VERB': 'Vm', 'X': 'X'}
+  basetag = {'ADJ': 'Aq', 'ADP': 'Sp', 'ADV': 'R', 'AUX': 'W', 'CCONJ': 'Cc', 'DET': 'D', 'INTJ': 'I', 'NOUN': 'Nc', 'NUM': 'M', 'PART': 'U', 'PRON': 'P', 'PROPN': 'Np', 'PUNCT': 'F', 'SCONJ': 'Cs', 'SYM': 'Xs', 'VERB': 'Vm', 'X': 'X'}
   ans = basetag[upos]
   if upos=='ADJ':
     if hasFeature(featdict, 'VerbForm', 'Part'):
@@ -215,9 +215,27 @@ def generateFullTag(lemma, upos, featstr):
       ans += 'f'
     else:
       ans += 'x'
-  # Sort out Punct somehow based on lemma?
-  # Fa=quote initial, Fb=hyphen, Fe=sentence final, Fi=sentence internal
-  # Fp=other, Fz=quote final
+  elif upos=='PUNCT':
+    # sentence final
+    if lemma in ['.', '!']:
+      ans += 'e'
+    # not used in training?
+    elif lemma in ['?']:
+      ans += 'q'
+    # "hyphen/underscore/dash"
+    elif lemma in ['-', '–', '—', '_']:
+      ans += 'b'
+    # sent. internal
+    elif lemma in [',', ';', ':']:
+      ans += 'i'
+    # "quote/par init."
+    elif lemma in ['“', '‘', '(', '[']:
+      ans += 'a'
+    # "quote/par fin."
+    elif lemma in ['”', '’', ')', ']']:
+      ans += 'z'
+  # Sort out ASCII quotes using deprels?
+  # Doesn't look like Elaine's tagger uses Fa/Fz in general
   if hasFeature(featdict, 'Abbr'):
     ans = 'Y'
   return ans
@@ -326,7 +344,7 @@ def readCorpusFromConstraintFormat(fileName, tagCounts, full_p):
         tagstart = line.find('" ')+2
         tag, featureString = constraint2UD(line[tagstart:])
         if full_p:
-          tag = generateFullTag('', tag, featureString)
+          tag = generateFullTag(line[2:tagstart-2], tag, featureString)
         currcands.append(tag)
       else:
         if len(currcands)>0:
@@ -655,4 +673,5 @@ def main():
   mkdir_p('predictions')
   printMarkdown(benchmarks, evaluateAll(benchmarks, algorithms))
 
-main()
+if __name__ == "__main__":
+  main()
