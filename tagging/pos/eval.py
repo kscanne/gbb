@@ -669,7 +669,7 @@ def main():
     'Unigram tagger': unigramTagger,
     'Bigram tagger': bigramTagger,
     'Trigram tagger': trigramTagger,
-    #'HMM tagger': hmmTagger,
+    'HMM tagger': hmmTagger,
     'Perceptron': perceptronTagger,
     'CRF tagger': crfTagger,
     'TnT tagger': tntTagger,
