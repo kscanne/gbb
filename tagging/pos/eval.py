@@ -62,6 +62,7 @@ def readDictFromTwoCols(fileName):
     ans = [tuple(line.rstrip().split('\t')) for line in f]
   return ans
 
+# TODO: Form=Emp,Len (etc)
 def hasFeature(fdict, key, val=None):
   if val==None:
     return key in fdict
@@ -111,6 +112,8 @@ def generateFullTag(lemma, upos, featstr):
     elif hasFeature(featdict, 'Number'):  # agam, etc.
       ans = 'Pr'
       ans += featureDict2Parole(featdict,['Person', 'Gender', 'Number'])
+      if hasFeature(featdict, 'PronType', 'Emp'):
+        ans += 'e'
     elif hasFeature(featdict, 'PrepForm', 'Cmpd'):
       ans += 'c'
     elif hasFeature(featdict, 'Poss'):
@@ -160,7 +163,7 @@ def generateFullTag(lemma, upos, featstr):
         ans += '-s'
     else:
       ans += featureDict2Parole(featdict, ['Gender', 'Number', 'Case'])
-      if hasFeature(featdict, 'Emp'):
+      if hasFeature(featdict, 'Form', 'Emp'):
         ans += '-e'
   elif upos=='NUM':
     if re.match('^[IVXLCDM]+$', lemma):
@@ -198,6 +201,8 @@ def generateFullTag(lemma, upos, featstr):
       ans += featureDict2Parole(featdict, ['Person', 'Gender', 'Number'])
       if lemma in ['sé', 'siad', 'sí']:
         ans += 's'
+      if hasFeature(featdict, 'PronType', 'Emp'):
+        ans += 'e'
   elif upos=='PROPN':
     ans += featureDict2Parole(featdict, ['Gender', 'Number', 'Case'])
   elif upos=='SCONJ':
@@ -210,6 +215,8 @@ def generateFullTag(lemma, upos, featstr):
     ans = re.sub('-$', '', ans)
   elif upos=='VERB':
     ans += featureDict2Parole(featdict, ['Mood', 'Tense', 'Person', 'Number'])
+    if hasFeature(featdict, 'Form', 'Emp'):
+      ans += '-e'
   elif upos=='X':
     if hasFeature(featdict, 'Foreign', 'Yes'):
       ans += 'f'
@@ -320,8 +327,10 @@ def CoNNL_U2Corpus(conlluText, full_p):
       if full_p:
         fullTag = generateFullTag(pieces[2],pieces[3],pieces[5])
         currsent.append((pieces[1], fullTag))
+        #currsent.append((pieces[1], pieces[2], fullTag))
       else:
         currsent.append((pieces[1], pieces[3]))
+        #currsent.append((pieces[1], pieces[2], pieces[3]))
   return ans
 
 def readCorpusFromCoNNL_U(fileName, full_p):
@@ -660,7 +669,7 @@ def main():
     'Unigram tagger': unigramTagger,
     'Bigram tagger': bigramTagger,
     'Trigram tagger': trigramTagger,
-    'HMM tagger': hmmTagger,
+    #'HMM tagger': hmmTagger,
     'Perceptron': perceptronTagger,
     'CRF tagger': crfTagger,
     'TnT tagger': tntTagger,
