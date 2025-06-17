@@ -36,11 +36,19 @@ def getVocabulary(corpus):
   vocab.append('<PAD>')
   return vocab
 
+# usually, for all eval stuff, tokens in corpus are pairs
+# to include lemmas in output, can pass corpus consisting of triples
+# and to include "glue" for corpas.ie, pass 4-tuples with boolean glue_p
 def writeCorpusToTwoCols(corpus, fileName):
   with open(fileName, "w", encoding="utf-8") as f:
     for sent in corpus:
       for taggedtok in sent:
-        f.write('\t'.join(taggedtok)+'\n')
+        if len(taggedtok)==4:
+          f.write('\t'.join(taggedtok[:-1])+'\n')
+          if taggedtok[-1]:
+            f.write('<g/>\n')
+        else:
+          f.write('\t'.join(taggedtok)+'\n')
       f.write('\n')
 
 def readCorpusFromTwoCols(fileName):
@@ -323,13 +331,14 @@ def CoNNL_U2Corpus(conlluText, full_p):
       pass
     else:
       pieces = line.split('\t')
+      glueAfter = ('SpaceAfter=No' in pieces[9])
       if full_p:
         fullTag = generateFullTag(pieces[2],pieces[3],pieces[5])
         currsent.append((pieces[1], fullTag))
-        #currsent.append((pieces[1], pieces[2], fullTag))
+        #currsent.append((pieces[1], pieces[2], fullTag, glueAfter))
       else:
         currsent.append((pieces[1], pieces[3]))
-        #currsent.append((pieces[1], pieces[2], pieces[3]))
+        #currsent.append((pieces[1], pieces[2], pieces[3], glueAfter))
   return ans
 
 def readCorpusFromCoNNL_U(fileName, full_p):
