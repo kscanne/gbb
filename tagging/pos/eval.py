@@ -62,12 +62,11 @@ def readDictFromTwoCols(fileName):
     ans = [tuple(line.rstrip().split('\t')) for line in f]
   return ans
 
-# TODO: Form=Emp,Len (etc)
 def hasFeature(fdict, key, val=None):
   if val==None:
     return key in fdict
   else:
-    return key in fdict and fdict[key]==val
+    return key in fdict and val in fdict[key]
 
 def featureDict2Parole(fdict, slotlist):
   ans = ''
