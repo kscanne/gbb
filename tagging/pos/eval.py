@@ -188,6 +188,8 @@ def generateFullTag(lemma, upos, featstr):
         ans += 'n'
       elif lemma=='an':
         ans += 'q'
+      elif lemma=='ar' and not hasFeature(featdict, 'Form', 'Indirect'):
+        ans += 'q'
       else:
         ans += '-'
       if hasFeature(featdict, 'Mood', 'Sub'):
@@ -201,7 +203,12 @@ def generateFullTag(lemma, upos, featstr):
       else:
         ans += '-'
       if hasFeature(featdict, 'Tense', 'Past'):
-        ans += 's'
+        # see https://github.com/UniversalDependencies/UD_Irish-IDT/issues/169
+        # can remove this conditional once that's resolved
+        if lemma=='gur':
+          ans = 'Cs'
+        else:
+          ans += 's'
       while ans[-1]=='-':
         ans = ans[0:-1]
     elif hasFeature(featdict, 'Form', 'Indirect'):  # lenar, ina, faoina, etc.
@@ -211,7 +218,7 @@ def generateFullTag(lemma, upos, featstr):
     elif hasFeature(featdict, 'PartType', 'Cop'):
       pass  # 1x in UD
     elif hasFeature(featdict, 'PartType', 'Cmpl'):
-      pass  # Fix?
+      ans = 'Cs'
     else:  # Ua, Up, Uc, Us, Uv, Um, Ud
       ans += featureDict2Parole(featdict, ['PartType'])
   elif upos=='PRON':
