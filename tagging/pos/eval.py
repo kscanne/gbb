@@ -186,6 +186,24 @@ def generateFullTag(lemma, upos, featstr):
       ans = 'Q'
       if hasFeature(featdict, 'Polarity', 'Neg'):
         ans += 'n'
+      elif lemma=='an':
+        ans += 'q'
+      else:
+        ans += '-'
+      if hasFeature(featdict, 'Mood', 'Sub'):
+        ans += 's'
+      elif hasFeature(featdict, 'Mood', 'Imp'):
+        ans += 'm'
+      elif hasFeature(featdict, 'Form', 'Direct'):
+        ans += 'r'
+      elif hasFeature(featdict, 'Form', 'Indirect'):
+        ans += 'i'
+      else:
+        ans += '-'
+      if hasFeature(featdict, 'Tense', 'Past'):
+        ans += 's'
+      while ans[-1]=='-':
+        ans = ans[0:-1]
     elif hasFeature(featdict, 'Form', 'Indirect'):  # lenar, ina, faoina, etc.
       ans = 'Spr'
     elif hasFeature(featdict, 'PartType', 'Inf'):
